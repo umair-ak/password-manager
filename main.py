@@ -4,8 +4,19 @@
 
 def savepasswords():
     
-    pass
-    # website_entry.
+    email = username_entry.get()
+    password = password_entry.get()
+    website = website_entry.get()
+
+    with open('data.csv',"a") as passwordfile:
+        passwordfile.write(f"{website},{email},{password}\n")
+
+    password_entry.delete(0,END)
+    website_entry.delete(0,END)
+    website_entry.focus()
+
+
+    
 # ---------------------------- UI SETUP ------------------------------- #
 
 from tkinter import *
@@ -37,8 +48,9 @@ website_entry = Entry(width=50)
 website_entry.grid(row=2 , column=2 , columnspan=2)
 website_entry.focus()
 
-username_entry = Entry(width=50,show='uak1911@gmail.com')
+username_entry = Entry(width=50)
 username_entry.grid(row=3, column=2, columnspan=2)
+username_entry.insert(0,"uak1911@gmail.com")
 
 password_entry = Entry(width= 33,textvariable='password',show = '*')
 password_entry.grid(row=4,column=2)
