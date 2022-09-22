@@ -1,19 +1,29 @@
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
+from tkinter import messagebox
 
 def savepasswords():
     
     email = username_entry.get()
     password = password_entry.get()
     website = website_entry.get()
+    if len(website)== 0 or len(password)==0:
+        messagebox.showwarning(title='Error',message="Please donot leave any field blank !")
+        return
+    if len(password)<8:
+        messagebox.showinfo(title="Error",message='Your password too short')
+        return
+    is_okay = messagebox.askquestion(title=website,message=f'the entered details are\nUsername : {email}\nPassword : {password}')
+    if is_okay=='yes':
+        with open('data.csv',"a") as passwordfile:
+            passwordfile.write(f"{website},{email},{password}\n")
 
-    with open('data.csv',"a") as passwordfile:
-        passwordfile.write(f"{website},{email},{password}\n")
-
-    password_entry.delete(0,END)
-    website_entry.delete(0,END)
-    website_entry.focus()
+        password_entry.delete(0,END)
+        website_entry.delete(0,END)
+        website_entry.focus()
+    else:
+        pass
 
 
     
