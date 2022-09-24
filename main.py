@@ -26,7 +26,7 @@ def gen_password():
 
     password_list = password_letters+password_numbers+password_symbols
     password_list1 = shuffle(password_list)
-    final_password = "".join(password_list1)
+    final_password = "".join(password_list)
     password_entry.insert(0,final_password)
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
@@ -35,7 +35,6 @@ def savepasswords():
     email = username_entry.get()
     password = password_entry.get()
     website = website_entry.get()
-
     data= {
         website:
             {
@@ -50,7 +49,7 @@ def savepasswords():
     if len(password)<8:
         messagebox.showinfo(title="Error",message='Your password too short')
         return
-    is_okay = messagebox.askquestion(title=website,message=f'the entered details are\nUsername : {email}\nPassword : {password}')
+    is_okay = messagebox.askquestion(title=website,message=f'Please check the details \nUsername : {email}\nPassword : {password}')
     
     def addingdata():
         with open('data.json','w') as data_file:
@@ -61,6 +60,10 @@ def savepasswords():
         try:
             with open('data.json','r') as data_file:
                 final_data = json.load(data_file)
+                if website in final_data:
+                    update_or_not = messagebox.askquestion(title=website,message=f'There is already an entry for {website} website do you want to update it')
+                    if update_or_not == 'no':
+                        return
 
         except FileNotFoundError :
             addingdata()
@@ -80,6 +83,23 @@ def savepasswords():
     else:
         pass
 
+# ---------------------------- SEARCH FUNCTIONALITY ------------------------------- #
+
+def search():
+    website = website_entry.get()
+    try :
+        with open('data.json','r') as data_file :
+            data_dict = json.load(data_file)
+            
+            if website in data_dict :
+                messagebox.showinfo(title=website , message=f"email : { data_dict[website]['email'] } \n password : {data_dict[website]['password']}")
+            else:
+                messagebox.showinfo(title='Error', message = f'There no such entry for the {website} website !')
+    except FileNotFoundError:
+        messagebox.showinfo(title='Error' , message=f'NO password have been stored ')
+    
+    except JSONDecodeError:
+        messagebox.showinfo(title='Error' , message=f'There are no passwords stored !')
 
     
 # ---------------------------- UI SETUP ------------------------------- #
@@ -108,8 +128,8 @@ password.grid(row=4,column=1)
 password.config(pady=3)
 
 # entries
-website_entry = Entry(width=50)
-website_entry.grid(row=2 , column=2 , columnspan=2)
+website_entry = Entry(width=33)
+website_entry.grid(row=2 , column=2 )
 website_entry.focus()
 
 username_entry = Entry(width=50)
@@ -128,5 +148,6 @@ generate.grid(row=4,column=3)
 addbtn = Button(text='ADD',width=14,command=savepasswords)
 addbtn.grid(row=5,column=2)
 
-
+search = Button(text = 'search' , width=12,command=search)
+search.grid(row = 2 , column = 3)
 screen.mainloop()
