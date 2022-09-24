@@ -1,5 +1,13 @@
-# ---------------------------- PASSWORD GENERATOR ------------------------------- #
+# import statements
+
+from tkinter import *
+from tkinter import messagebox
 from random import randint,shuffle,choice
+import json
+from json.decoder import JSONDecodeError
+
+
+# ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def gen_password():
     password_entry.delete(0,END)
     letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -18,16 +26,24 @@ def gen_password():
 
     password_list = password_letters+password_numbers+password_symbols
     password_list1 = shuffle(password_list)
-    final_password = "".join(password_list)
+    final_password = "".join(password_list1)
     password_entry.insert(0,final_password)
 # ---------------------------- SAVE PASSWORD ------------------------------- #
-from tkinter import messagebox
 
 def savepasswords():
     
     email = username_entry.get()
     password = password_entry.get()
     website = website_entry.get()
+
+    data= {
+        website:
+            {
+            "email":email,
+            "password":password
+            }
+        }
+
     if len(website)== 0 or len(password)==0:
         messagebox.showwarning(title='Error',message="Please donot leave any field blank !")
         return
@@ -35,13 +51,32 @@ def savepasswords():
         messagebox.showinfo(title="Error",message='Your password too short')
         return
     is_okay = messagebox.askquestion(title=website,message=f'the entered details are\nUsername : {email}\nPassword : {password}')
-    if is_okay=='yes':
-        with open('data.csv',"a") as passwordfile:
-            passwordfile.write(f"{website},{email},{password}\n")
+    
+    def addingdata():
+        with open('data.json','w') as data_file:
+            json.dump(data,data_file , indent=4)
 
-        password_entry.delete(0,END)
-        website_entry.delete(0,END)
-        website_entry.focus()
+    if is_okay=='yes':
+        
+        try:
+            with open('data.json','r') as data_file:
+                final_data = json.load(data_file)
+
+        except FileNotFoundError :
+            addingdata()
+            
+        except JSONDecodeError:
+            addingdata()
+            
+        else:
+            final_data.update(data)
+            with open('data.json','w') as data_file:
+                json.dump(final_data,data_file , indent=4)
+
+        finally:
+            password_entry.delete(0,END)
+            website_entry.delete(0,END)
+            website_entry.focus()
     else:
         pass
 
@@ -49,7 +84,6 @@ def savepasswords():
     
 # ---------------------------- UI SETUP ------------------------------- #
 
-from tkinter import *
 
 screen = Tk()
 screen.title('Password Manager')
